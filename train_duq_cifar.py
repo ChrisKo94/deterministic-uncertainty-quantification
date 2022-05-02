@@ -2,6 +2,7 @@ import argparse
 import json
 import pathlib
 import random
+import h5py
 
 import torch
 import torch.nn.functional as F
@@ -19,6 +20,8 @@ from utils.resnet_duq import ResNet_DUQ
 from utils.datasets import all_datasets
 from utils.evaluate_ood import get_cifar_svhn_ood, get_auroc_classification
 
+data_dir = "E:/Dateien/LCZ_Votes/"
+
 
 def main(
     architecture,
@@ -31,11 +34,15 @@ def main(
     weight_decay,
     final_model,
     output_dir,
+    data_dir,
 ):
     writer = SummaryWriter(log_dir=f"runs/{output_dir}")
 
-    ds = all_datasets["CIFAR10"]()
-    input_size, num_classes, dataset, test_dataset = ds
+    input_size = (32,32,10)
+    num_classes = 10
+    dataset_h5 = h5py.File(f"{data_dir}train_data.h5", "r")
+    dataset = np.array(dataset_h5.get(""))
+    test_dataset =
 
     # Split up training set
     idx = list(range(len(dataset)))
@@ -45,9 +52,8 @@ def main(
         train_dataset = dataset
         val_dataset = test_dataset
     else:
-        val_size = int(len(dataset) * 0.8)
-        train_dataset = torch.utils.data.Subset(dataset, idx[:val_size])
-        val_dataset = torch.utils.data.Subset(dataset, idx[val_size:])
+        train_dataset =
+        val_dataset =
 
         val_dataset.transform = (
             test_dataset.transform
@@ -308,6 +314,10 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--output_dir", type=str, default="results", help="set output folder"
+    )
+
+    parser.add_argument(
+        "--data_dir", type=str, default="E:/Dateien/LCZ_Votes/", help="set data directory"
     )
 
     # Below setting cannot be used for model selection,
