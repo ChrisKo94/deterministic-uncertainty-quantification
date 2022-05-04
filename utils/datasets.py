@@ -1,5 +1,7 @@
 import os
+import h5py
 
+import numpy as np
 import torch
 from torch.utils.data import Dataset
 
@@ -97,6 +99,16 @@ def get_notMNIST(root="./"):
 
     return input_size, num_classes, None, test_dataset
 
+def get_LCZ42(root="E:/Dateien/LCZ_Votes/"):
+    input_size = 32
+    num_classes = 10
+
+    train_dataset = LCZ42_train(root)
+    val_dataset = LCZ42_val(root)
+    test_dataset = LCZ42_test(root)
+
+    return input_size, num_classes, train_dataset, val_dataset, test_dataset
+
 
 all_datasets = {
     "MNIST": get_MNIST,
@@ -104,6 +116,7 @@ all_datasets = {
     "FashionMNIST": get_FashionMNIST,
     "SVHN": get_SVHN,
     "CIFAR10": get_CIFAR10,
+    "LCZ42": get_LCZ42,
 }
 
 
@@ -155,3 +168,71 @@ class FastFashionMNIST(datasets.FashionMNIST):
         img, target = self.data[index], self.targets[index]
 
         return img, target
+
+class LCZ42_train(Dataset):
+    def __init__(self, root):
+
+        data_h5 = h5py.File(os.path.join(root, "train_data.h5"))
+        targets_h5 = h5py.File(os.path.join(root, "train_label_distributions_data.h5"))
+        one_hot_labels = np.array(data_h5["y"])
+        indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
+
+        self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
+                                 dtype=torch.float32)
+
+        self.targets = torch.tensor(np.array(targets_h5["train_label_distributions"][:,:10]),
+                                    dtype=torch.float32)
+
+    def __getitem__(self, index):
+        img = self.data[index]
+        target = self.targets[index]
+
+        return img, target
+
+    def __len__(self):
+        return len(self.data)
+
+class LCZ42_val(Dataset):
+    def __init__(self, root):
+
+        data_h5 = h5py.File(os.path.join(root, "validation_data.h5"))
+        targets_h5 = h5py.File(os.path.join(root, "val_label_distributions_data.h5"))
+        one_hot_labels = np.array(data_h5["y"])
+        indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
+
+        self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
+                                 dtype=torch.float32)
+
+        self.targets = torch.tensor(np.array(targets_h5["val_label_distributions"][:, :10]),
+                                    dtype=torch.float32)
+
+    def __getitem__(self, index):
+        img = self.data[index]
+        target = self.targets[index]
+
+        return img, target
+
+    def __len__(self):
+        return len(self.data)
+
+class LCZ42_test(Dataset):
+    def __init__(self, root):
+
+        data_h5 = h5py.File(os.path.join(root, "test_data.h5"))
+        targets_h5 = h5py.File(os.path.join(root, "test_label_distributions_data.h5"))
+        one_hot_labels = np.array(data_h5["y"])
+        indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
+        self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
+                                 dtype=torch.float32)
+
+        self.targets = torch.tensor(np.array(targets_h5["test_label_distributions"][:, :10]),
+                                    dtype=torch.float32)
+
+    def __getitem__(self, index):
+        img = self.data[index]
+        target = self.targets[index]
+
+        return img, target
+
+    def __len__(self):
+        return len(self.data)
