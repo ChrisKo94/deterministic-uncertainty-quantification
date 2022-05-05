@@ -32,7 +32,7 @@ def main(
     final_model,
     output_dir,
 ):
-    #writer = SummaryWriter(log_dir=f"runs/{output_dir}")
+    writer = SummaryWriter(log_dir=f"runs/{output_dir}")
 
     ds = all_datasets["LCZ42"]()
 
@@ -48,8 +48,8 @@ def main(
         feature_extractor = WideResNet()
     elif architecture == "ResNet18":
         model_output_size = 512
-        epochs = 100
-        milestones = [25, 50, 75]
+        epochs = 50
+        milestones = [15, 25, 35]
         feature_extractor = resnet18()
 
         # Adapted resnet from:
@@ -194,10 +194,10 @@ def main(
         writer.add_scalar("Loss/train", loss, trainer.state.epoch)
 
         if trainer.state.epoch > (epochs - 5):
-            accuracy, auroc = get_cifar_svhn_ood(model)
-            print(f"Test Accuracy: {accuracy}, AUROC: {auroc}")
-            writer.add_scalar("OoD/test_accuracy", accuracy, trainer.state.epoch)
-            writer.add_scalar("OoD/roc_auc", auroc, trainer.state.epoch)
+            #accuracy, auroc = get_cifar_svhn_ood(model)
+            #print(f"Test Accuracy: {accuracy}, AUROC: {auroc}")
+            #writer.add_scalar("OoD/test_accuracy", accuracy, trainer.state.epoch)
+            #writer.add_scalar("OoD/roc_auc", auroc, trainer.state.epoch)
 
             accuracy, auroc = get_auroc_classification(val_dataset, model)
             print(f"AUROC - uncertainty: {auroc}")
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--learning_rate",
         type=float,
-        default=0.05,
+        default=0.002,
         help="Learning rate (default: 0.05)",
     )
 

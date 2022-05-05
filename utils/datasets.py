@@ -178,10 +178,11 @@ class LCZ42_train(Dataset):
         indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
 
         self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
-                                 dtype=torch.float32)
+                                 dtype=torch.float32).permute(0,3,1,2)
 
-        self.targets = torch.tensor(np.array(targets_h5["train_label_distributions"][:,:10]),
-                                    dtype=torch.float32)
+        #self.targets = torch.tensor(np.array(targets_h5["train_label_distributions"][:,:10]),
+        #                            dtype=torch.float32)
+        self.targets = torch.tensor(np.argmax(one_hot_labels[indices_in,:],1), dtype=torch.int64)
 
     def __getitem__(self, index):
         img = self.data[index]
@@ -201,10 +202,11 @@ class LCZ42_val(Dataset):
         indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
 
         self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
-                                 dtype=torch.float32)
+                                 dtype=torch.float32).permute(0,3,1,2)
 
-        self.targets = torch.tensor(np.array(targets_h5["val_label_distributions"][:, :10]),
-                                    dtype=torch.float32)
+        #self.targets = torch.tensor(np.array(targets_h5["val_label_distributions"][:, :10]),
+        #                            dtype=torch.float32)
+        self.targets = torch.tensor(np.argmax(one_hot_labels[indices_in,:],1), dtype=torch.int64)
 
     def __getitem__(self, index):
         img = self.data[index]
@@ -223,10 +225,11 @@ class LCZ42_test(Dataset):
         one_hot_labels = np.array(data_h5["y"])
         indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
         self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
-                                 dtype=torch.float32)
+                                 dtype=torch.float32).permute(0,3,1,2)
 
-        self.targets = torch.tensor(np.array(targets_h5["test_label_distributions"][:, :10]),
-                                    dtype=torch.float32)
+        #self.targets = torch.tensor(np.array(targets_h5["test_label_distributions"][:, :10]),
+        #                            dtype=torch.float32)
+        self.targets = torch.tensor(np.argmax(one_hot_labels[indices_in,:],1), dtype=torch.int64)
 
     def __getitem__(self, index):
         img = self.data[index]

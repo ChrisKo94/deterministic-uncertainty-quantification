@@ -47,7 +47,7 @@ class ResNet_DUQ(nn.Module):
         z = self.feature_extractor(x)
 
         z = torch.einsum("ij,mnj->imn", z, self.W)
-        embedding_sum = torch.einsum("ijk,ik->jk", z, y)
+        embedding_sum = torch.einsum("ijk,ik->jk", z, y.float())
 
         self.m = self.gamma * self.m + (1 - self.gamma) * embedding_sum
 
