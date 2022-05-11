@@ -1,3 +1,4 @@
+import math
 import os
 import h5py
 
@@ -183,6 +184,12 @@ class LCZ42_train(Dataset):
         #self.targets = torch.tensor(np.array(targets_h5["train_label_distributions"][:,:10]),
         #                            dtype=torch.float32)
         self.targets = torch.tensor(np.argmax(one_hot_labels[indices_in,:],1), dtype=torch.int64)
+
+        # Subset 50% of data:
+        np.random.seed(424242)
+        indices_train = np.random.choice(len(self.targets), math.ceil(0.5*len(self.targets)), False)
+        self.data = self.data[indices_train, :, :, :]
+        self.targets = self.targets[indices_train]
 
     def __getitem__(self, index):
         img = self.data[index]

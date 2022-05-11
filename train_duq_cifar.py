@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torch.utils.data
 from torch.utils.tensorboard.writer import SummaryWriter
 
-from torchvision.models import resnet18
+from torchvision.models import resnet18, resnet50
 
 from ignite.engine import Events, Engine
 from ignite.metrics import Accuracy, Average, Loss
@@ -51,6 +51,11 @@ def main(
         epochs = 50
         milestones = [15, 25, 35]
         feature_extractor = resnet18()
+    elif architecture == "ResNet50":
+        model_output_size = 2048
+        epochs = 50
+        milestones = [5, 15, 25, 35, 45]
+        feature_extractor = resnet50()
 
         # Adapted resnet from:
         # https://github.com/kuangliu/pytorch-cifar/blob/master/models/resnet.py
@@ -78,7 +83,7 @@ def main(
     )
 
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
-        optimizer, milestones=milestones, gamma=0.2
+        optimizer, milestones=milestones, gamma=0.5
     )
 
     def calc_gradients_input(x, y_pred):
@@ -243,15 +248,15 @@ if __name__ == "__main__":
 
     parser.add_argument(
         "--architecture",
-        default="ResNet18",
-        choices=["ResNet18", "WRN"],
+        default="ResNet50",
+        choices=["ResNet18", "ResNet50", "WRN"],
         help="Pick an architecture (default: ResNet18)",
     )
 
     parser.add_argument(
         "--batch_size",
         type=int,
-        default=128,
+        default=64,
         help="Batch size to use for training (default: 128)",
     )
 
@@ -265,33 +270,33 @@ if __name__ == "__main__":
     parser.add_argument(
         "--learning_rate",
         type=float,
-        default=0.002,
+        default=0.0005,
         help="Learning rate (default: 0.05)",
     )
 
     parser.add_argument(
         "--l_gradient_penalty",
         type=float,
-        default=0.75,
+        default=0.65,
         help="Weight for gradient penalty (default: 0.75)",
     )
 
     parser.add_argument(
         "--gamma",
         type=float,
-        default=0.999,
+        default=0.99,
         help="Decay factor for exponential average (default: 0.999)",
     )
 
     parser.add_argument(
         "--length_scale",
         type=float,
-        default=0.1,
+        default=0.05,
         help="Length scale of RBF kernel (default: 0.1)",
     )
 
     parser.add_argument(
-        "--weight_decay", type=float, default=5e-4, help="Weight decay (default: 5e-4)"
+        "--weight_decay", type=float, default=5e-5, help="Weight decay (default: 5e-4)"
     )
 
     parser.add_argument(
