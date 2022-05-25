@@ -102,7 +102,7 @@ def get_notMNIST(root="./"):
 
 def get_LCZ42(root="E:/Dateien/LCZ_Votes/"):
     input_size = 32
-    num_classes = 10
+    num_classes = 17
 
     train_dataset = LCZ42_train(root)
     val_dataset = LCZ42_val(root)
@@ -176,18 +176,18 @@ class LCZ42_train(Dataset):
         data_h5 = h5py.File(os.path.join(root, "train_data.h5"))
         targets_h5 = h5py.File(os.path.join(root, "train_label_distributions_data.h5"))
         one_hot_labels = np.array(data_h5["y"])
-        indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
+        #indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
 
-        self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
+        self.data = torch.tensor(np.array(data_h5["x"][:, :, :, :3]),
                                  dtype=torch.float32).permute(0,3,1,2)
 
         #self.targets = torch.tensor(np.array(targets_h5["train_label_distributions"][:,:10]),
         #                            dtype=torch.float32)
-        self.targets = torch.tensor(np.argmax(one_hot_labels[indices_in,:],1), dtype=torch.int64)
+        self.targets = torch.tensor(np.argmax(one_hot_labels,1), dtype=torch.int64)
 
         # Subset 50% of data:
         np.random.seed(424242)
-        indices_train = np.random.choice(len(self.targets), math.ceil(0.5*len(self.targets)), False)
+        indices_train = np.random.choice(len(self.targets), math.ceil(0.1*len(self.targets)), False)
         self.data = self.data[indices_train, :, :, :]
         self.targets = self.targets[indices_train]
 
@@ -206,14 +206,14 @@ class LCZ42_val(Dataset):
         data_h5 = h5py.File(os.path.join(root, "validation_data.h5"))
         targets_h5 = h5py.File(os.path.join(root, "val_label_distributions_data.h5"))
         one_hot_labels = np.array(data_h5["y"])
-        indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
+        #indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
 
-        self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
+        self.data = torch.tensor(np.array(data_h5["x"][:, :, :, :3]),
                                  dtype=torch.float32).permute(0,3,1,2)
 
         #self.targets = torch.tensor(np.array(targets_h5["val_label_distributions"][:, :10]),
         #                            dtype=torch.float32)
-        self.targets = torch.tensor(np.argmax(one_hot_labels[indices_in,:],1), dtype=torch.int64)
+        self.targets = torch.tensor(np.argmax(one_hot_labels,1), dtype=torch.int64)
 
     def __getitem__(self, index):
         img = self.data[index]
@@ -230,13 +230,13 @@ class LCZ42_test(Dataset):
         data_h5 = h5py.File(os.path.join(root, "test_data.h5"))
         targets_h5 = h5py.File(os.path.join(root, "test_label_distributions_data.h5"))
         one_hot_labels = np.array(data_h5["y"])
-        indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
-        self.data = torch.tensor(np.array(data_h5["x"][indices_in, :, :, :]),
+        #indices_in = np.where(np.where(one_hot_labels == np.amax(one_hot_labels, 0))[1] + 1 < 11)[0]
+        self.data = torch.tensor(np.array(data_h5["x"][:, :, :, :3]),
                                  dtype=torch.float32).permute(0,3,1,2)
 
         #self.targets = torch.tensor(np.array(targets_h5["test_label_distributions"][:, :10]),
         #                            dtype=torch.float32)
-        self.targets = torch.tensor(np.argmax(one_hot_labels[indices_in,:],1), dtype=torch.int64)
+        self.targets = torch.tensor(np.argmax(one_hot_labels,1), dtype=torch.int64)
 
     def __getitem__(self, index):
         img = self.data[index]

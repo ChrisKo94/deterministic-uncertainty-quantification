@@ -34,7 +34,7 @@ The FastFashionMNIST class provides a significant speed up.
 ## Running
 
 The Two Moons experiments can be replicated using the [Two Moons notebook](two_moons.ipynb).
-The FashionMNIST experiment is implemented in [train\_duq\_fm.py](train_duq_fm.py).
+The FashionMNIST experiment is implemented in [train\_duq\_fm.py](gp_grid_search.py).
 For both experiments, the paper's default are hardcoded and can be changed in place.
 
 The ResNet18 based CIFAR experiments are implemented in [train\_duq\_cifar.py](train_duq_cifar.py).
