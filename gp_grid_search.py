@@ -41,8 +41,6 @@ def train_model(l_gradient_penalty, length_scale, final_model):
 
     model_output_size = 512
     gamma = 0.999
-
-    model_output_size = 512
     epochs = 50
     milestones = [15, 25, 35]
     feature_extractor = resnet18()

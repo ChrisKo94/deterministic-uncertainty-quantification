@@ -100,7 +100,7 @@ def get_notMNIST(root="./"):
 
     return input_size, num_classes, None, test_dataset
 
-def get_LCZ42(root="E:/Dateien/LCZ_Votes/"):
+def get_LCZ42(root="data/"):
     input_size = 32
     num_classes = 17
 
@@ -185,7 +185,7 @@ class LCZ42_train(Dataset):
         #                            dtype=torch.float32)
         self.targets = torch.tensor(np.argmax(one_hot_labels,1), dtype=torch.int64)
 
-        # Subset 50% of data:
+        # Subset 10% of data:
         np.random.seed(424242)
         indices_train = np.random.choice(len(self.targets), math.ceil(0.1*len(self.targets)), False)
         self.data = self.data[indices_train, :, :, :]
