@@ -13,12 +13,13 @@ from ignite.contrib.handlers.tqdm_logger import ProgressBar
 from utils.datasets import FastFashionMNIST, get_FashionMNIST
 from utils.datasets import all_datasets
 from utils.resnet_duq import ResNet_DUQ
+from torchvision import transforms
 from torchvision.models import resnet18
 
 
 def train_model(l_gradient_penalty, length_scale, final_model):
 
-    ds = all_datasets["LCZ42"]()
+    ds = all_datasets["Eurosat"]()
 
     input_size, num_classes, train_dataset, val_dataset, test_dataset = ds
 
@@ -106,7 +107,7 @@ def train_model(l_gradient_penalty, length_scale, final_model):
         optimizer.zero_grad()
 
         x, y = batch
-        y = F.one_hot(y, num_classes=17).float()
+        y = F.one_hot(y, num_classes=10).float()
 
         x, y = x.cuda(), y.cuda()
 
@@ -132,7 +133,7 @@ def train_model(l_gradient_penalty, length_scale, final_model):
         model.eval()
 
         x, y = batch
-        y = F.one_hot(y, num_classes=17).float()
+        y = F.one_hot(y, num_classes=10).float()
 
         x, y = x.cuda(), y.cuda()
 
@@ -194,7 +195,7 @@ def train_model(l_gradient_penalty, length_scale, final_model):
         )
         print(f"Sigma: {model.sigma}")
 
-    trainer.run(dl_train, max_epochs=20)
+    trainer.run(dl_train, max_epochs=50)
 
     evaluator.run(dl_val)
     val_accuracy = evaluator.state.metrics["accuracy"]
@@ -209,8 +210,8 @@ if __name__ == "__main__":
     #_, _, _, fashionmnist_test_dataset = get_FashionMNIST()
 
     # Finding length scale - decided based on validation accuracy
-    l_gradient_penalties = [0.1,0.3,0.5,0.7] #, 0.1, 0.3, 0.5, 1.0]
-    length_scales = [1,0.1, 0.2, 0.5, 0.8, 1, 1.5] # [0.05, 0.1, 0.2, 0.3, 0.5, 1.0]
+    l_gradient_penalties = [0,0.1,0.3,0.5,0.7,0.9,1.0] #, 0.1, 0.3, 0.5, 1.0]
+    length_scales = [0.1, 0.2, 0.5, 0.8, 1, 1.5] # [0.05, 0.1, 0.2, 0.3, 0.5, 1.0]
 
     # Finding gradient penalty - decided based on AUROC on NotMNIST
     # l_gradient_penalties = [0.0, 0.05, 0.1, 0.2, 0.3, 0.5, 1.0]

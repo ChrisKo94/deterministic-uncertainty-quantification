@@ -4,7 +4,7 @@ import h5py
 
 import numpy as np
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, random_split
 
 from torchvision import datasets, transforms
 
@@ -43,6 +43,29 @@ def get_FashionMNIST(root="./"):
         root + "data/", train=False, download=True, transform=transform
     )
     return input_size, num_classes, train_dataset, test_dataset
+
+def get_eurosat(root="./"):
+    input_size = 64
+    num_classes = 10
+
+    dataset = datasets.EuroSAT(
+        root + "data/", download = True
+    )
+    total_count = len(dataset)
+    train_count = int(0.8 * total_count)
+    val_count = int(0.1 * total_count)
+    test_count = total_count - train_count - val_count
+    train_dataset, val_dataset, test_dataset = torch.utils.data.random_split(
+        dataset, (train_count, val_count, test_count), generator=torch.Generator().manual_seed(42)
+    )
+
+    transform = transforms.Compose([transforms.ToTensor()])
+
+    train_dataset.dataset.transform = transform
+    val_dataset.dataset.transform = transform
+    test_dataset.dataset.transform = transform
+
+    return input_size, num_classes, train_dataset, val_dataset, test_dataset
 
 
 def get_SVHN(root="./"):
@@ -118,6 +141,7 @@ all_datasets = {
     "SVHN": get_SVHN,
     "CIFAR10": get_CIFAR10,
     "LCZ42": get_LCZ42,
+    "Eurosat": get_eurosat,
 }
 
 
@@ -169,6 +193,29 @@ class FastFashionMNIST(datasets.FashionMNIST):
         img, target = self.data[index], self.targets[index]
 
         return img, target
+
+'''
+class Eurosat(datasets.eurosat):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.data = self.data.unsqueeze(1).float().div(255)
+        #self.data = self.data.sub_(0.2861).div_(0.3530)
+
+        self.data, self.targets = self.data.to("cuda"), self.targets.to("cuda")
+
+    def __getitem__(self, index):
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (image, target) where target is index of the target class.
+        """
+        img, target = self.data[index], self.targets[index]
+
+        return img, target
+'''
 
 class LCZ42_train(Dataset):
     def __init__(self, root):
@@ -246,3 +293,5 @@ class LCZ42_test(Dataset):
 
     def __len__(self):
         return len(self.data)
+
+
